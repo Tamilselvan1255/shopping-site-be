@@ -20,6 +20,13 @@ router.post("/makeOrder", async(req, res) => {
       return res.status(404).send({status: "Fail", error: "Product not found"});
     }
 
+    if(existProduct.quantity < quantity){
+      return res.status(400).send({status: "Fail", error: `Only ${existProduct.quantity} items is available`})
+    } else {
+      existProduct.quantity = existProduct.quantity - quantity;
+      await existProduct.save();
+    }
+
     await orderModel.create({
       ...req.body
     });
