@@ -7,7 +7,7 @@ const productInfo = new mongoose.Schema({
     description: {type: String},
     brand: {type: String},
     quantity: {type:Number, required: [true, "Quantity of the product is required"]},
-    product_image: {type: String}
+    product_images: [{type: String}]
 }, {
     timestamps: {
         currentTime: () => moment.tz("Asia/Kolkata").toDate()

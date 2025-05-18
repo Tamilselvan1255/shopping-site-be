@@ -1,56 +1,62 @@
-const express = require("express");
 const userModel = require("../models/userModel");
-const router = express.Router();
+const { sendError, sendSuccess } = require("../middleware/responseHandler");
+const bcrypt = require("bcryptjs");
 
-router.post("/createUser", async(req, res) => {
-    const {userName, phoneNumber, email} = req.body;
-    if(!userName || !phoneNumber || !email){
-        return res.status(400).send({error: "Please fill required fields!"});
+const createUser = async (req, res) => {
+  const { userName, phoneNumber, email, password, token } = req.body;
+  try {
+    const existUser = await userModel.findOne({ phoneNumber });
+    if (existUser) {
+      return sendError(res, "User already exists!", 400);
     }
-    try{
-        const existUser = await userModel.findOne({phoneNumber});
-        if(existUser){
-            return res.status(400).send({error: "User already exists!"});
-        }
 
-        const data = await userModel.create({...req.body});
-        if(data){
-            res.status(200).send({status: "Success", message: "Customer created successfully!"})
-        }
-    }catch(error){
-        console.error("Error while creating customer:", error.message);
-        res.status(500).send({error: "Internal server error"});
+    const hashedPassword = await bcrypt.hash(password, 10);
+    req.body.password = hashedPassword;
+
+    const data = await userModel.create({ ...req.body });
+    if (data) {
+      sendSuccess(res, "Customer created successfully!", {});
     }
-});
+  } catch (error) {
+    console.error("Error while creating customer:", error.message);
+    sendError(res, "", 500);
+  }
+};
 
-router.patch("/updateUser/:id", async(req, res) => {
-    const id = req.params.id;
-    const {userName, email} = req.body;
-    try{
-        const existUser = await userModel.findOneAndUpdate({_id: id}, {userName, email}, {new: true});
-        if(!existUser){
-            return res.status(404).send({error: "User not found!"})
-        }
-        res.status(200).send({status: "Success", message: "User updated successfully!"})
-
-    }catch(error){
-        console.error("Error while updating user:", error.message);
-        res.status(500).send({error: "Internal server error"});
+const updateUser = async (req, res) => {
+  const id = req.params.id;
+  const { email, token } = req.body;
+  try {
+    const existUser = await userModel.findOneAndUpdate(
+      { _id: id },
+      { email },
+      { new: true }
+    );
+    if (!existUser) {
+      return sendError(res, "User not found!", 404);
     }
-});
 
-router.delete("/deleteUser/:id", async(req, res) => {
-    const id = req.params.id;
-    try{
-        const existUser = await userModel.findOneAndDelete({_id: id});
-        if(!existUser){
-            return res.status(404).send({error: "User not found!"})
-        }
-        res.status(200).send({status: "Success", message: "User deleted successfully!"});
-    }catch(error){
-        console.error("Error while deleting user:", error.message);
-        res.status(500).send({error: "Internal server error"});
+    sendSuccess(res, "User updated successfully", {});
+  } catch (error) {
+    console.error("Error while updating user:", error.message);
+    sendError(res, "", 500);
+  }
+};
+
+const deleteUser = async (req, res) => {
+  const id = req.params.id;
+  const { token } = req.body;
+  try {
+    const existUser = await userModel.findOneAndDelete({ _id: id });
+    if (!existUser) {
+      return sendError(res, "User not found!", 404);
     }
-});
 
-module.exports = router;
+    sendSuccess(res, "User deleted successfully!", {});
+  } catch (error) {
+    console.error("Error while deleting user:", error.message);
+    sendError(res, "", 500);
+  }
+};
+
+module.exports = { createUser, updateUser, deleteUser };
