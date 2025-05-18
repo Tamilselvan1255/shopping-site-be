@@ -2,7 +2,7 @@ const productModel = require("../models/productModel");
 const { sendSuccess, sendError } = require("../middleware/responseHandler");
 
 const addProduct = async (req, res) => {
-  const { product_name, price, quantity, description, brand, token } = req.body;
+  const { product_name, price, quantity, description, brand } = req.body;
   try {
     const imagePaths = req.files?.map(file => file.path) || [];
 

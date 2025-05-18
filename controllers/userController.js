@@ -3,7 +3,7 @@ const { sendError, sendSuccess } = require("../middleware/responseHandler");
 const bcrypt = require("bcryptjs");
 
 const createUser = async (req, res) => {
-  const { userName, phoneNumber, email, password, token } = req.body;
+  const { userName, phoneNumber, email, password } = req.body;
   try {
     const existUser = await userModel.findOne({ phoneNumber });
     if (existUser) {
@@ -25,7 +25,7 @@ const createUser = async (req, res) => {
 
 const updateUser = async (req, res) => {
   const id = req.params.id;
-  const { email, token } = req.body;
+  const { email} = req.body;
   try {
     const existUser = await userModel.findOneAndUpdate(
       { _id: id },
@@ -45,7 +45,6 @@ const updateUser = async (req, res) => {
 
 const deleteUser = async (req, res) => {
   const id = req.params.id;
-  const { token } = req.body;
   try {
     const existUser = await userModel.findOneAndDelete({ _id: id });
     if (!existUser) {

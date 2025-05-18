@@ -1,12 +1,16 @@
 const jwt = require("jsonwebtoken");
 
 const createUserValidator = (req, res, next) => {
-  const { userName, phoneNumber, email, token } = req.body;
-  if (!userName || !phoneNumber || !email || !token) {
+  const { userName, phoneNumber, email } = req.body;
+  const authHeader = req.headers.authorization;
+
+  if (!userName || !phoneNumber || !email) {
     return res.status(400).send({ error: "Please fill required fields!" });
   }
 
+  
   try {
+    const token = authHeader.split(" ")[1];
     jwt.verify(token, process.env.JWT_SECRET);
     next();
   } catch (err) {
@@ -15,12 +19,9 @@ const createUserValidator = (req, res, next) => {
 };
 
 const userTokenValidator = (req, res, next) => {
-  const { token } = req.body;
-  if (!token) {
-    return res.status(400).send({ error: "Token is required!" });
-  }
-
+  const authHeader = req.headers.authorization;
   try {
+    const token = authHeader.split(" ")[1];
     jwt.verify(token, process.env.JWT_SECRET);
     next();
   } catch (err) {
