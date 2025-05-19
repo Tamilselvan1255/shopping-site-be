@@ -22,7 +22,7 @@ const login = async(req, res) => {
             const decPassword = await bcrypt.compare(password, existUser.password);
             console.log(decPassword);
             if(decPassword){
-                  sendSuccess(res, "User loggedin successfully!", {token})
+                  sendSuccess(res, "User loggedin successfully!", {token, existUser})
             } else {
                 sendError(res, "Invalid credentials!", 400)
             }

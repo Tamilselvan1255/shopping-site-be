@@ -4,7 +4,7 @@ const orderModel = require("../models/orderModel");
 const { sendError, sendSuccess } = require("../middleware/responseHandler");
 
 const makeOrder = async(req, res) => {
-  const {phoneNumber, product_id, quantity} = req.body;
+  const {phoneNumber, product_id, quantity, address} = req.body;
   try{
     const existUser = await userModel.findOne({phoneNumber});
     if(!existUser){
